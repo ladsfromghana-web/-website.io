@@ -11,7 +11,7 @@ This project is part of my learning journey in web development. It focuses on bu
 . Simple and clean layout
 
 - Live Site
-https://yourusername.github.io/my-website/
+https://nunoojonathan-hue.github.io/my-website/
 
 - Author
   Nunoo Jonathan Zidan
