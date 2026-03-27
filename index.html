@@ -179,9 +179,22 @@
   .footer-contact-link:hover{color:#fff!important}
   .footer-bottom{border-top:1px solid var(--mid);padding-top:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
   .footer-copy{font-size:10px;color:#444;letter-spacing:1px}
-  .footer-socials{display:flex;gap:20px}
-  .footer-socials a{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#444;text-decoration:none;transition:color .2s}
+  .footer-socials{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .footer-socials a{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555;text-decoration:none;transition:color .2s,background .2s;display:inline-flex;align-items:center;gap:7px}
   .footer-socials a:hover{color:var(--gold)}
+  .footer-socials a svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}
+  /* Social Strip */
+  .social-strip{background:var(--gray);border-top:1px solid var(--mid);border-bottom:1px solid var(--mid);padding:48px 44px;display:flex;flex-direction:column;align-items:center;gap:28px;text-align:center}
+  .social-strip-label{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold)}
+  .social-strip h3{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,56px);letter-spacing:2px;line-height:1}
+  .social-handles{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .social-handle-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:crosshair;transition:transform .2s,box-shadow .2s,background .2s,color .2s;font-weight:700}
+  .social-handle-btn svg{width:16px;height:16px;fill:currentColor;flex-shrink:0}
+  .social-handle-btn.instagram{background:transparent;color:var(--white);border:1px solid #c13584}
+  .social-handle-btn.instagram:hover{background:#c13584;color:#fff;transform:translate(-3px,-3px);box-shadow:3px 3px 0 #833ab4}
+  .social-handle-btn.tiktok{background:transparent;color:var(--white);border:1px solid #69c9d0}
+  .social-handle-btn.tiktok:hover{background:#010101;color:#fff;border-color:#010101;transform:translate(-3px,-3px);box-shadow:3px 3px 0 #69c9d0}
+  @media(max-width:768px){.social-strip{padding:40px 20px}.social-handles{flex-direction:column;align-items:center}}
 
   /* ANIMATIONS */
   @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
@@ -223,7 +236,7 @@
     <li><a href="#about">About</a></li>
   </ul>
   <div class="nav-right">
-    <a href="mailto:lfgclothing25@gmail.com" class="nav-email">lfgclothing25@gmail.com</a>
+    <a href="/cdn-cgi/l/email-protection#117d7776727d7e6579787f76232451767c70787d3f727e7c" class="nav-email"><span class="__cf_email__" data-cfemail="28444e4f4b44475c4041464f1a1d684f45494144064b4745">[email&#160;protected]</span></a>
     <button class="nav-cart" id="cartBtn">Bag (0)</button>
   </div>
 </nav>
@@ -237,7 +250,7 @@
     <p class="hero-sub">Ghanaian streetwear built for those who own the block. Every stitch, every graphic — a statement from the streets of Accra to the world.</p>
     <div class="hero-cta">
       <a href="#tees" class="btn-primary">Shop New Drop</a>
-      <a href="mailto:lfgclothing25@gmail.com" class="btn-outline">Contact Us</a>
+      <a href="/cdn-cgi/l/email-protection#adc1cbcacec1c2d9c5c4c3ca9f98edcac0ccc4c183cec2c0" class="btn-outline">Contact Us</a>
     </div>
   </div>
   <div class="hero-scroll"><div class="scroll-line"></div>scroll</div>
@@ -491,10 +504,38 @@
     <h3>GET IN TOUCH</h3>
     <p>Questions about orders, wholesale, or collabs? Hit us directly.</p>
   </div>
-  <a href="mailto:lfgclothing25@gmail.com" class="contact-email-btn">
+  <a href="/cdn-cgi/l/email-protection#c4a8a2a3a7a8abb0acadaaa3f6f184a3a9a5ada8eaa7aba9" class="contact-email-btn">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-    lfgclothing25@gmail.com
+    <span class="__cf_email__" data-cfemail="422e2425212e2d362a2b2c25707702252f232b2e6c212d2f">[email&#160;protected]</span>
   </a>
+</section>
+
+<!-- SOCIAL STRIP -->
+<section class="social-strip">
+  <span class="social-strip-label">Follow The Movement</span>
+  <h3>WE'RE ON THE SOCIALS</h3>
+  <div class="social-handles">
+    <!-- Instagram: opens app if installed, falls back to browser -->
+    <a href="https://www.instagram.com/lfg_official_25"
+       class="social-handle-btn instagram"
+       onclick="openSocial(event,'instagram://user?username=lfg_official_25','https://www.instagram.com/lfg_official_25')"
+       rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+      </svg>
+      @lfg_official_25
+    </a>
+    <!-- TikTok: opens app if installed, falls back to browser -->
+    <a href="https://www.tiktok.com/@lfgclothing"
+       class="social-handle-btn tiktok"
+       onclick="openSocial(event,'snssdk1233://user/profile/lfgclothing','https://www.tiktok.com/@lfgclothing')"
+       rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.93a8.17 8.17 0 004.77 1.52V7.01a4.85 4.85 0 01-1-.32z"/>
+      </svg>
+      @lfgclothing
+    </a>
+  </div>
 </section>
 
 <!-- NEWSLETTER -->
@@ -536,9 +577,9 @@
     <div class="footer-col">
       <h4>Contact</h4>
       <ul>
-        <li><a href="mailto:lfgclothing25@gmail.com" class="footer-contact-link">
+        <li><a href="/cdn-cgi/l/email-protection#c0aca6a7a3acafb4a8a9aea7f2f580a7ada1a9aceea3afad" class="footer-contact-link">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          lfgclothing25@gmail.com
+          <span class="__cf_email__" data-cfemail="b9d5dfdedad5d6cdd1d0d7de8b8cf9ded4d8d0d597dad6d4">[email&#160;protected]</span>
         </a></li>
         <li><a href="#">Shipping &amp; Returns</a></li>
         <li><a href="#">Size Guide</a></li>
@@ -549,15 +590,25 @@
   <div class="footer-bottom">
     <p class="footer-copy">© 2025 Lads From Ghana. Accra, Ghana. All rights reserved.</p>
     <div class="footer-socials">
-      <a href="#">Instagram</a>
-      <a href="#">TikTok</a>
+      <a href="https://www.instagram.com/lfg_official_25"
+         onclick="openSocial(event,'instagram://user?username=lfg_official_25','https://www.instagram.com/lfg_official_25')"
+         rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        Instagram
+      </a>
+      <a href="https://www.tiktok.com/@lfgclothing"
+         onclick="openSocial(event,'snssdk1233://user/profile/lfgclothing','https://www.tiktok.com/@lfgclothing')"
+         rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.93a8.17 8.17 0 004.77 1.52V7.01a4.85 4.85 0 01-1-.32z"/></svg>
+        TikTok
+      </a>
       <a href="#">Twitter</a>
       <a href="#">WhatsApp</a>
     </div>
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   document.querySelectorAll('.reveal').forEach(el => {
     new IntersectionObserver((entries) => {
       entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
@@ -569,22 +620,18 @@
       tab.classList.add('active');
     });
   });
+  // Deep-link opener: tries native app first, falls back to web
+  function openSocial(e, appUrl, webUrl) {
+    e.preventDefault();
+    const start = Date.now();
+    window.location.href = appUrl;
+    setTimeout(() => {
+      if (Date.now() - start < 1500) {
+        window.open(webUrl, '_blank', 'noopener,noreferrer');
+      }
+    }, 800);
+  }
+
   let cartCount = 0;
   function addToCart(btn) {
     cartCount++;
-    document.getElementById('cartBtn').textContent = 'Bag (' + cartCount + ')';
-    const orig = btn.textContent;
-    btn.textContent = '✓ Added';
-    setTimeout(() => btn.textContent = orig, 1500);
-  }
-  document.getElementById('subBtn').addEventListener('click', () => {
-    const input = document.querySelector('.newsletter-input');
-    if(input.value.includes('@')) {
-      document.getElementById('subBtn').textContent = '✓ Done';
-      input.value = '';
-      setTimeout(() => document.getElementById('subBtn').textContent = 'Join', 2500);
-    }
-  });
-</script>
-</body>
-</html>
