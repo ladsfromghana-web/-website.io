@@ -25,10 +25,36 @@ emailjs.init("hbrFQ7DoQDBt9-R_T");
     });
   });
 
+  // Mobile sidebar (collections + bag), opened from the hamburger in the navbar
+  const hamburger = document.getElementById('navHamburger');
+  const sidebar = document.getElementById('navSidebar');
+  const overlay = document.getElementById('navOverlay');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    sidebar.setAttribute('aria-hidden', 'false');
+    hamburger.setAttribute('aria-expanded', 'true');
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    sidebar.setAttribute('aria-hidden', 'true');
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
+
+  if (hamburger && sidebar && overlay) {
+    hamburger.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    document.getElementById('navSidebarClose').addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('a').forEach(link => link.addEventListener('click', closeSidebar));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+  }
+
   let cartCount = 0;
   function addToCart(btn) {
     cartCount++;
-    document.getElementById('cartBtn').textContent = 'Bag (' + cartCount + ')';
+    document.querySelectorAll('.cart-trigger').forEach(el => el.textContent = 'Bag (' + cartCount + ')');
     const orig = btn.textContent;
     btn.textContent = '✓ Added';
     setTimeout(() => btn.textContent = orig, 1500);
