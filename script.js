@@ -1,6 +1,17 @@
 // EmailJS initialization
 emailjs.init("hbrFQ7DoQDBt9-R_T");
 
+  // Liquid glass nav — stays hidden at the top, fades/slides in once scrolling starts
+  const siteNav = document.querySelector('nav');
+  if (siteNav) {
+    const revealAt = 40; // px scrolled before the pill appears
+    const toggleNav = () => {
+      siteNav.classList.toggle('nav-visible', window.scrollY > revealAt);
+    };
+    toggleNav();
+    window.addEventListener('scroll', toggleNav, { passive: true });
+  }
+
   document.querySelectorAll('.reveal').forEach(el => {
     new IntersectionObserver((entries) => {
       entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
