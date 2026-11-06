@@ -1,0 +1,68 @@
+"""Tests js/store.js's REMOTE (Supabase) adapter against build/mock_supabase.py.
+This proves the request shapes and flows work; it does NOT prove the database policies. Test those on a real Supabase project (README)."""
+import time, subprocess, os, sys
+from playwright.sync_api import sync_playwright
+EXE = os.environ.get("CHROME", "/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+web = subprocess.Popen(["python3", "-m", "http.server", "8077"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+mock = subprocess.Popen(["python3", "build/mock_supabase.py"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1.5)
+B = "http://localhost:8077/"; A = B + "admin/index.html"; res = []; errs = []; IMG = os.path.join(ROOT, "assets/img/look-13.jpg")
+def check(n, ok, info=""): res.append(bool(ok)); print(("PASS " if ok else "FAIL ") + n + (f"  [{info}]" if info and not ok else ""))
+CFG = 'export const CONFIG={supabaseUrl:"http://localhost:54321",supabaseAnonKey:"anon-key"};'
+try:
+    with sync_playwright() as p:
+        b = p.chromium.launch(executable_path=EXE, args=["--no-sandbox"]); ctx = b.new_context(viewport=dict(width=1440, height=1000))
+        ctx.route("**/js/config.js", lambda r: r.fulfill(body=CFG, content_type="text/javascript")); pg = ctx.new_page()
+        pg.on("pageerror", lambda e: errs.append(str(e)[:200])); pg.on("dialog", lambda d: d.accept())
+        pg.goto(B + "her-district.html"); pg.wait_for_timeout(1200)
+        check("remote mode: storefront loads brands/products from the API (no local-preview bar)", pg.locator(".pcard").count() == 2 and pg.locator(".devbar").count() == 0)
+        pg.goto(B + "product.html?p=her-district-sleeveless-top"); pg.wait_for_timeout(900)
+        check("remote: product gallery order 1,2,3", pg.locator(".gal-track img").evaluate_all("e=>e.map(x=>x.getAttribute('src').split('/').pop())") == ["hd-sleeveless-1.jpg", "hd-sleeveless-2.jpg", "hd-sleeveless-3.jpg"])
+        pg.locator("#qp").click(); pg.locator("#add").click(); pg.goto(B + "cart.html"); pg.wait_for_timeout(700)
+        pg.fill('input[name=name]', "Remote Buyer"); pg.fill('input[name=phone]', "0201112222"); pg.fill('input[name=address]', "Tema, Accra"); pg.locator("#place").click(); pg.wait_for_timeout(900)
+        t = pg.locator("#app").inner_text(); check("remote: order placed through rpc/place_order, total GH₵300.00, not marked paid", "ORD-1001" in t and "GH₵300.00" in t and "Payment has not been taken" in t, t[:140])
+        r = pg.evaluate("""async()=>{const m=await import('/js/store.js');const d=await m.Store.loadAll();try{return await m.Store.placeOrder({name:'Mal Lory',phone:'0201112222',address:'Accra road'},[{product_id:d.products[0].id,quantity:1,price:1,unit_price:1}])}catch(e){return {err:e.message}}}""")
+        check("remote: forged client price ignored (server uses DB price 150)", r.get("total") == 150, r)
+        r = pg.evaluate("""async()=>{const m=await import('/js/store.js');try{await m.Store.placeOrder({name:'Mal Lory',phone:'0201112222',address:'Accra road'},[{product_id:'x',quantity:1}]);return 'ok'}catch(e){return e.message}}""")
+        check("remote: invalid item rejected with a readable message", "no longer available" in r, r)
+        r = pg.evaluate("""async()=>{const x=await fetch('http://localhost:54321/rest/v1/products',{method:'POST',headers:{apikey:'anon-key','Content-Type':'application/json'},body:'{"name":"hack"}'});return x.status}"""); check("anonymous direct write is refused (mock policy)", r in (401, 403), r)
+        r = pg.evaluate("""async()=>{const m=await import('/js/store.js');try{return (await m.Store.listOrders()).length}catch(e){return -1}}"""); check("anonymous visitor cannot read orders or customer details (0 rows returned)", r == 0, r)
+        # --- admin auth
+        pg.goto(A); pg.wait_for_timeout(900); check("remote: admin page shows login when signed out", pg.locator("#lf").count() == 1)
+        pg.fill('input[name=email]', "admin@example.com"); pg.fill('input[name=password]', "wrong"); pg.click("#lf button"); pg.wait_for_timeout(500); check("remote: wrong password rejected", "Invalid" in pg.locator("#le").inner_text())
+        pg.fill('input[name=email]', "shopper@example.com"); pg.fill('input[name=password]', "shopperpass"); pg.click("#lf button"); pg.wait_for_timeout(600)
+        check("remote: valid account that is NOT in admins is refused", "not an authorised administrator" in pg.locator("#le").inner_text() and pg.locator(".shell").count() == 0 and pg.evaluate("localStorage.getItem('hd_admin_session')") is None)
+        pg.fill('input[name=email]', "admin@example.com"); pg.fill('input[name=password]', "goodpass"); pg.click("#lf button"); pg.wait_for_timeout(1200); check("remote: admin signs in", pg.locator(".shell").count() == 1)
+        pg.goto(A + "#/orders"); pg.wait_for_timeout(700); check("remote: admin sees the real orders (2) with nested items", pg.locator("tr.click").count() == 2, pg.locator("tr.click").count())
+        pg.locator("tr.click", has_text="ORD-1001").click(); pg.wait_for_timeout(300); pg.locator("#st").select_option("confirmed"); pg.locator("#sv").click(); pg.wait_for_timeout(700)
+        pg.goto(A + "#/overview"); pg.wait_for_timeout(800); check("remote: confirming an order moves revenue (GH₵300.00 Her District)", "GH₵300.00" in pg.locator("#pg").inner_text())
+        # --- token refresh
+        pg.evaluate("""()=>{const s=JSON.parse(localStorage.getItem('hd_admin_session'));s.expires_at=1;localStorage.setItem('hd_admin_session',JSON.stringify(s))}""")
+        pg.goto(A + "#/orders"); pg.wait_for_timeout(1200); check("remote: expired token is refreshed transparently", pg.locator("tr.click").count() == 2 and pg.locator("#lf").count() == 0)
+        # --- product with storage upload
+        pg.goto(A + "#/products"); pg.wait_for_timeout(700); pg.click("#np"); pg.wait_for_timeout(300); pg.fill('input[name=name]', "Remote Tee"); pg.fill('input[name=price]', "99.5")
+        with pg.expect_file_chooser() as fc: pg.click("#up")
+        fc.value.set_files(IMG); pg.wait_for_timeout(1200); check("remote: image uploaded to storage (public URL on the API host)", pg.locator(".imgrow img").first.get_attribute("src").startswith("http://localhost:54321/storage/v1/object/public/site-media/products/"))
+        pg.click("#ps"); pg.wait_for_timeout(1000); check("remote: product saved (row + image rows)", pg.locator("tbody tr", has_text="Remote Tee").count() == 1)
+        pg.goto(B + "her-district.html"); pg.wait_for_timeout(1200); check("remote: new product appears on the storefront with its uploaded image", pg.locator(".pcard", has_text="Remote Tee").count() == 1 and pg.locator(".pcard", has_text="GH₵99.50").count() == 1)
+        src = pg.locator(".pcard", has_text="Remote Tee").locator("img").first.get_attribute("src"); ok = pg.evaluate("async(u)=>{const r=await fetch(u);return r.status}", src); check("remote: uploaded image is publicly retrievable", ok == 200, ok)
+        pg.goto(A + "#/products"); pg.wait_for_timeout(700); pg.locator("tbody tr", has_text="Remote Tee").locator("[data-e]").click(); pg.wait_for_timeout(300); pg.uncheck('input[name=published]'); pg.click("#ps"); pg.wait_for_timeout(900)
+        pg.goto(B + "her-district.html"); pg.wait_for_timeout(1000); check("remote: unpublished product hidden from public", pg.locator(".pcard", has_text="Remote Tee").count() == 0)
+        pg.goto(A + "#/products"); pg.wait_for_timeout(700); pg.locator("tbody tr", has_text="Remote Tee").locator("[data-d]").click(); pg.wait_for_timeout(800); check("remote: product deleted", pg.locator("tbody tr", has_text="Remote Tee").count() == 0)
+        # --- brand / homepage / lookbook
+        pg.goto(A + "#/brands"); pg.wait_for_timeout(700); pg.locator('form[data-b="lfg"] input[name=coming_soon]').uncheck(); pg.locator('form[data-b="lfg"] button.p').click(); pg.wait_for_timeout(900)
+        pg.goto(B + "lads-from-ghana.html"); pg.wait_for_timeout(900); check("remote: coming-soon toggle persists to the database", pg.locator(".soon-hero").count() == 0)
+        pg.goto(A + "#/brands"); pg.wait_for_timeout(700); pg.locator('form[data-b="lfg"] input[name=coming_soon]').check(); pg.locator('form[data-b="lfg"] button.p').click(); pg.wait_for_timeout(900)
+        pg.goto(A + "#/homepage"); pg.wait_for_timeout(700); pg.locator("tbody tr").nth(2).locator('[data-mv="up"]').click(); pg.wait_for_timeout(900); check("remote: slide reorder persists (Her District now 2nd, Lads From Ghana 3rd)", "Her District" in pg.locator("tbody tr").nth(1).inner_text() and "Lads From Ghana" in pg.locator("tbody tr").nth(2).inner_text())
+        pg.fill('input[name=promo_label]', "REMOTE PROMO"); pg.locator("#sf button.p").click(); pg.wait_for_timeout(800); pg.goto(B + "index.html"); pg.wait_for_timeout(1200); check("remote: homepage text saved (upsert) and shown", "REMOTE PROMO" in pg.locator("#app").inner_text())
+        pg.goto(A + "#/homepage"); pg.wait_for_timeout(700); pg.fill('input[name=promo_label]', ""); pg.locator("#sf button.p").click(); pg.wait_for_timeout(600)
+        pg.goto(A + "#/lookbook"); pg.wait_for_timeout(700); pg.select_option("#lb", "lfg")
+        with pg.expect_file_chooser() as fc: pg.click("#la")
+        fc.value.set_files(IMG); pg.wait_for_timeout(1500); check("remote: lookbook upload creates a row", pg.locator(".lbcard").count() == 14)
+        pg.locator(".lbcard").last.locator("[data-d]").click(); pg.wait_for_timeout(800); check("remote: lookbook delete", pg.locator(".lbcard").count() == 13)
+        pg.reload(); pg.wait_for_timeout(1500); check("remote: session persists across reload", pg.locator(".shell").count() == 1)
+        pg.click("#so"); pg.wait_for_timeout(900); check("remote: sign out clears the session", pg.evaluate("localStorage.getItem('hd_admin_session')") is None and pg.locator("#lf").count() == 1)
+        ctx.close(); b.close()
+finally:
+    web.terminate(); mock.terminate()
+print(f"\n{sum(res)}/{len(res)} passed"); print("page errors:", errs[:6]); sys.exit(0 if all(res) else 1)
