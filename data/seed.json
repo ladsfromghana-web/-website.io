@@ -1,0 +1,256 @@
+{
+ "brands": [
+  {
+   "id": "lfg",
+   "slug": "lads-from-ghana",
+   "name": "Lads From Ghana",
+   "description": "Ghanaian streetwear built for those who own the block. Every stitch, every graphic — a statement from the streets of Accra to the world.",
+   "logo_url": "assets/img/lfg-logo.jpg",
+   "banner_url": "assets/img/lfg-soon-1.jpg",
+   "instagram_url": "https://www.instagram.com/lfg_official_25/",
+   "coming_soon": true,
+   "coming_soon_message": "The new collection is dropping soon.",
+   "visible": true,
+   "preview_images": [
+    "assets/img/lfg-soon-1.jpg",
+    "assets/img/lfg-soon-2.jpg"
+   ],
+   "sort": 1
+  },
+  {
+   "id": "her-district",
+   "slug": "her-district",
+   "name": "Her District",
+   "description": "Casual streetwear. Own the streets with a new style.",
+   "logo_url": "assets/img/her-district-logo.jpg",
+   "banner_url": "assets/img/hd-hero-tank.jpg",
+   "instagram_url": "https://www.instagram.com/her.dst/?__pwa=1#",
+   "coming_soon": false,
+   "coming_soon_message": "",
+   "visible": true,
+   "preview_images": [],
+   "sort": 2
+  }
+ ],
+ "products": [
+  {
+   "id": "e064ff02-297e-5aa8-b4b0-0940c71b6b37",
+   "brand_id": "her-district",
+   "name": "Her District Sleeveless Top",
+   "slug": "her-district-sleeveless-top",
+   "price": 150.0,
+   "description": "",
+   "category": "Tops",
+   "availability": "available",
+   "published": true,
+   "featured": true,
+   "stock": null,
+   "sizes": [],
+   "sort": 1,
+   "images": [
+    {
+     "id": "87b48a80-7046-541f-8074-67d2de3381d5",
+     "url": "assets/img/hd-sleeveless-1.jpg",
+     "position": 0
+    },
+    {
+     "id": "fe2e58b0-a4f6-5d4d-9f49-dd9f8a9397c6",
+     "url": "assets/img/hd-sleeveless-2.jpg",
+     "position": 1
+    },
+    {
+     "id": "23793917-4e17-56d7-b466-10b6a8c9d10a",
+     "url": "assets/img/hd-sleeveless-3.jpg",
+     "position": 2
+    }
+   ]
+  },
+  {
+   "id": "56b728c7-a196-54a0-8523-861e653eed3c",
+   "brand_id": "her-district",
+   "name": "Her District Crop Top",
+   "slug": "her-district-crop-top",
+   "price": 150.0,
+   "description": "",
+   "category": "Tops",
+   "availability": "available",
+   "published": true,
+   "featured": true,
+   "stock": null,
+   "sizes": [],
+   "sort": 2,
+   "images": [
+    {
+     "id": "fb934f86-3762-5ba9-99a8-5c7350daedc9",
+     "url": "assets/img/hd-crop-1.jpg",
+     "position": 0
+    },
+    {
+     "id": "c47024bd-d3a7-5dba-a0b1-d658e183a359",
+     "url": "assets/img/hd-crop-2.jpg",
+     "position": 1
+    },
+    {
+     "id": "d3562884-af38-57d3-8abf-1b232ee051d8",
+     "url": "assets/img/hd-crop-3.jpg",
+     "position": 2
+    }
+   ]
+  }
+ ],
+ "slides": [
+  {
+   "id": "198d5695-9938-58b3-8844-bcf5eba81f94",
+   "brand_id": null,
+   "layout": "photo",
+   "image_url": "assets/img/slide-first.jpg",
+   "headline": "Lads From Ghana × Her District",
+   "subtext": "",
+   "cta_label": "Explore the brands",
+   "cta_url": "index.html#collections",
+   "position": 1,
+   "visible": true
+  },
+  {
+   "id": "b2115f86-4e8a-5c9c-86c7-a0b888329f4e",
+   "brand_id": "lfg",
+   "layout": "layered",
+   "image_url": "assets/img/lfg-hero-cap.jpg",
+   "headline": "Lads From Ghana",
+   "subtext": "Dropping soon",
+   "cta_label": "Explore Collection",
+   "cta_url": "lads-from-ghana.html",
+   "position": 2,
+   "visible": true
+  },
+  {
+   "id": "f21feca7-a575-52c0-a426-eb48fac0bed0",
+   "brand_id": "her-district",
+   "layout": "layered",
+   "image_url": "assets/img/hd-hero-tank.jpg",
+   "headline": "Her District",
+   "subtext": "Casual streetwear",
+   "cta_label": "Shop Her District",
+   "cta_url": "her-district.html",
+   "position": 3,
+   "visible": true
+  }
+ ],
+ "lookbook": [
+  {
+   "id": "91a5dd83-502a-5107-b5b7-01dc118879f8",
+   "image_url": "assets/img/lfg-look-01.jpg",
+   "brand_id": "lfg",
+   "caption": "Look 01 — Culture",
+   "visible": true,
+   "position": 1
+  },
+  {
+   "id": "fc2532e8-5a9d-5dcc-ba0a-3657e01998cb",
+   "image_url": "assets/img/look-16.jpg",
+   "brand_id": "her-district",
+   "caption": "Her District — Casual Streetwear",
+   "visible": true,
+   "position": 2
+  },
+  {
+   "id": "4736dd17-a768-5322-ba23-4a2c998bc6ca",
+   "image_url": "assets/img/lfg-look-02.jpg",
+   "brand_id": "lfg",
+   "caption": "Look 02 — Black & White",
+   "visible": true,
+   "position": 3
+  },
+  {
+   "id": "61b8f68d-c669-55f2-b83d-c32ba2840952",
+   "image_url": "assets/img/look-17.jpg",
+   "brand_id": "her-district",
+   "caption": "Her District — New Style",
+   "visible": true,
+   "position": 4
+  },
+  {
+   "id": "0f2a83a0-2a79-58c4-b5af-0c254720e567",
+   "image_url": "assets/img/lfg-look-03.jpg",
+   "brand_id": "lfg",
+   "caption": "Look 03 — Brown Logo Tee",
+   "visible": true,
+   "position": 5
+  },
+  {
+   "id": "1525b327-8268-5e2a-b290-7579d495727c",
+   "image_url": "assets/img/look-13.jpg",
+   "brand_id": "lfg",
+   "caption": "Lads From Ghana",
+   "visible": true,
+   "position": 6
+  },
+  {
+   "id": "e4fac3c1-e84e-5810-9cc3-6effa78e7efd",
+   "image_url": "assets/img/lfg-look-04.png",
+   "brand_id": "lfg",
+   "caption": "Look 04 — Own The Block",
+   "visible": true,
+   "position": 7
+  },
+  {
+   "id": "535a17d6-d01c-52fa-8f23-a62b8d907d78",
+   "image_url": "assets/img/look-14.jpg",
+   "brand_id": "lfg",
+   "caption": "The Heritage",
+   "visible": true,
+   "position": 8
+  },
+  {
+   "id": "29e4a855-fd19-5648-8946-0f57de1b548d",
+   "image_url": "assets/img/lfg-look-05.jpg",
+   "brand_id": "lfg",
+   "caption": "Look 05 — Green Trucker",
+   "visible": true,
+   "position": 9
+  },
+  {
+   "id": "70697bb8-3266-5dac-80b9-2e920826ad8c",
+   "image_url": "assets/img/look-15.jpg",
+   "brand_id": "lfg",
+   "caption": "The Casual Look",
+   "visible": true,
+   "position": 10
+  },
+  {
+   "id": "04cd605d-7966-5a0a-b56d-808306e3c1fb",
+   "image_url": "assets/img/lfg-look-06.png",
+   "brand_id": "lfg",
+   "caption": "Look 06 — Pink Trucker",
+   "visible": true,
+   "position": 11
+  },
+  {
+   "id": "f71e5ff8-5e67-54d9-9f9d-cde2c8ace383",
+   "image_url": "assets/img/lfg-look-07.jpg",
+   "brand_id": "lfg",
+   "caption": "Look 07 — Crop Teal",
+   "visible": true,
+   "position": 12
+  },
+  {
+   "id": "8cfeda74-ee73-5745-a4a7-cdbfc6df8bab",
+   "image_url": "assets/img/lfg-look-08.jpg",
+   "brand_id": "lfg",
+   "caption": "Look 08 — Culture Beanie",
+   "visible": true,
+   "position": 13
+  }
+ ],
+ "settings": {
+  "announcement_text": "",
+  "announcement_visible": "false",
+  "promo_label": "",
+  "collections_eyebrow": "Collections",
+  "collections_title": "Choose a brand",
+  "collections_intro": "",
+  "lookbook_title": "Lookbook",
+  "lookbook_intro": "Lads From Ghana and Her District, together in one gallery.",
+  "whatsapp_number": "233244126931"
+ }
+}
