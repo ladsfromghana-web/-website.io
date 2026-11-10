@@ -56,17 +56,25 @@ export async function renderChrome(active, { transparentTop = false } = {}) {
   const nav = [['home', 'Home', 'index.html'], ['lfg', 'Lads From Ghana', 'lads-from-ghana.html'], ['hd', 'Her District', 'her-district.html'], ['look', 'Lookbook', 'lookbook.html'], ['coll', 'Collections', 'index.html#collections']];
   const ann = s.announcement_visible === 'true' && s.announcement_text ? `<div class="announce">${esc(s.announcement_text)}</div>` : '';
   const hdr = document.createElement('div');
-  hdr.innerHTML = `${ann}<header class="hdr${transparentTop ? ' over-hero' : ''}" id="hdr"><div class="hdr-in">
+  hdr.innerHTML = `${ann}<header class="hdr" id="hdr"><div class="hdr-in">
     <a class="marks" href="index.html" aria-label="Lads From Ghana × Her District — home"><img src="${asset('assets/img/lfg-logo.jpg')}" alt="" width="38" height="38"><img src="${asset('assets/img/her-district-logo.jpg')}" alt="" width="38" height="38"></a>
     <nav class="nav" aria-label="Main">${nav.map(([k, l, h]) => `<a href="${h}"${k === active ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</nav>
     <div class="hdr-right"><a class="icon-btn" href="cart.html" aria-label="Open bag"><span class="bag">${bagIcon}</span><span class="count" id="cartCount">0</span></a>
-    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><i></i><i></i></button></div></div>
-    <div class="mnav" id="mnav">${nav.map(([k, l, h]) => `<a href="${h}">${l}</a>`).join('')}<a href="cart.html">Bag</a><a class="ig" href="${HD_INSTAGRAM}" target="_blank" rel="noopener">${igIcon} @her.dst</a></div></header>`;
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><i></i><i></i><i></i></button></div></div></header>
+    <div class="drawer-ov" id="dov"></div>
+    <aside class="drawer" id="drawer" aria-label="Menu" aria-hidden="true"><button class="drawer-x" id="dx" aria-label="Close menu">\u00d7</button>
+      <ul class="drawer-links">${nav.map(([k, l, h]) => `<li><a href="${h}"${k === active ? ' aria-current="page"' : ''}>${l}</a></li>`).join('')}</ul>
+      <a class="drawer-bag" href="cart.html">Bag (<span id="drawerCount">0</span>)</a>
+      <a class="drawer-ig" href="${HD_INSTAGRAM}" target="_blank" rel="noopener">${igIcon} @her.dst</a></aside>`;
   document.body.prepend(hdr);
-  const h = $('#hdr'); const onScroll = () => h.classList.toggle('solid', !transparentTop || scrollY > 40); onScroll(); addEventListener('scroll', onScroll, { passive: true });
-  $('#burger').addEventListener('click', () => { const o = h.classList.toggle('open'); $('#burger').setAttribute('aria-expanded', o); });
-  $$('#mnav a').forEach(a => a.addEventListener('click', () => h.classList.remove('open')));
-  const upd = () => { const n = Cart.count(); const c = $('#cartCount'); c.textContent = n; c.classList.toggle('on', n > 0); };
+  const h = $('#hdr'), dr = $('#drawer'), ov = $('#dov'), bg = $('#burger'); dr.inert = true;
+  const onScroll = () => h.classList.toggle('solid', scrollY > 40); onScroll(); addEventListener('scroll', onScroll, { passive: true });
+  const setMenu = (o, focus = true) => { dr.classList.toggle('open', o); ov.classList.toggle('open', o); dr.inert = !o; dr.setAttribute('aria-hidden', String(!o)); bg.setAttribute('aria-expanded', String(o)); document.documentElement.classList.toggle('lock', o); if (focus) (o ? $('#dx') : bg).focus({ preventScroll: true }); };
+  bg.addEventListener('click', () => setMenu(true)); $('#dx').addEventListener('click', () => setMenu(false)); ov.addEventListener('click', () => setMenu(false));
+  $$('.drawer-links a, .drawer-bag').forEach(a => a.addEventListener('click', () => setMenu(false, false)));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && dr.classList.contains('open')) setMenu(false); });
+  matchMedia('(min-width:901px)').addEventListener('change', (m) => { if (m.matches && dr.classList.contains('open')) setMenu(false, false); });
+  const upd = () => { const n = Cart.count(); const c = $('#cartCount'); c.textContent = n; c.classList.toggle('on', n > 0); $('#drawerCount').textContent = n; };
   upd(); addEventListener('cart:change', upd); addEventListener('storage', upd);
 
   const f = document.createElement('footer'); f.className = 'ftr';
