@@ -15,13 +15,13 @@ const app = $('#app');
         ${sl.cta_label ? `<a class="btn solid" href="${esc(sl.cta_url || '#')}">${esc(sl.cta_label)}</a>` : ''}</div></article>`;
   };
   const brandCard = (b) => {
-    const prods = v.products.filter(p => p.brand_id === b.id); let imgs, cls = '';
+    const prods = v.products.filter(p => p.brand_id === b.id), live = prods.filter(p => p.availability === 'available').length, soonN = prods.filter(p => p.availability === 'dropping_soon').length; let imgs, cls = '';
     if (b.coming_soon) { imgs = (b.preview_images.length ? b.preview_images : [b.banner_url]).slice(0, 2); cls = 'soon'; }
     else if (prods.length) { imgs = prods.slice(0, 2).map(p => p.images[0] && p.images[0].url).filter(Boolean); cls = 'products'; }
     else imgs = [b.banner_url];
     return `<a class="bcard rv" href="${esc(b.slug)}.html" data-brand="${esc(b.id)}" aria-label="${esc(b.name)}${b.coming_soon ? ' \u2014 dropping soon' : ''}">
       <div class="bcard-imgs ${imgs.length < 2 ? 'one' : ''} ${cls}">${imgs.map(u => imgTag(u, b.name)).join('')}${b.coming_soon ? '<div class="soon-tag"><span><small>' + esc(b.name) + '</small>Dropping soon</span></div>' : ''}</div>
-      <div class="bcard-foot"><img class="logo" src="${esc(asset(b.logo_url))}" alt="" width="46" height="46"><div style="flex:1"><h3>${esc(b.name)}</h3><p>${b.coming_soon ? 'Collection preview' : esc(prods.length + (prods.length === 1 ? ' piece' : ' pieces') + ' available')}</p></div><span class="go">${b.coming_soon ? 'Explore Collection' : 'Shop ' + esc(b.name)}</span></div></a>`;
+      <div class="bcard-foot"><img class="logo" src="${esc(asset(b.logo_url))}" alt="" width="46" height="46"><div style="flex:1"><h3>${esc(b.name)}</h3><p>${b.coming_soon ? 'Collection preview' : (live ? esc(live + (live === 1 ? ' piece' : ' pieces') + ' available') + (soonN ? ' \u00b7 ' + soonN + ' dropping soon' : '') : soonN ? 'New pieces dropping soon' : 'Collection')}</p></div><span class="go">${b.coming_soon ? 'Explore Collection' : 'Shop ' + esc(b.name)}</span></div></a>`;
   };
   const look = v.lookbook.slice(0, 4);
   app.innerHTML = `<section class="hero" aria-roledescription="carousel" aria-label="Featured">${slides.map(slideHTML).join('')}
