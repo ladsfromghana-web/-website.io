@@ -26,11 +26,11 @@ function mountGallery(el, images, alt) {
   const buyable = isBuyable(p, v); let qty = 1;
   app.innerHTML = `<div class="wrap"><div class="pdp"><div class="gal" id="gal"></div>
     <div class="pinfo"><p class="crumbs"><a href="index.html">Home</a> / <a href="${esc(b.slug)}.html">${esc(b.name)}</a></p><h1>${esc(p.name)}</h1><p class="price">${money(p.price)}</p>
-      <p class="avail${buyable ? '' : ' out'}">${buyable ? 'Available' : (b.coming_soon ? 'Dropping soon' : 'Sold out')}</p>
+      <p class="avail${buyable ? '' : ' out'}">${buyable ? 'Available' : (b.coming_soon || p.availability === 'dropping_soon' ? 'Dropping soon' : 'Sold out')}</p>
       ${p.description ? `<p class="desc">${esc(p.description)}</p>` : ''}
       ${p.sizes.length ? `<fieldset style="border:0"><legend class="eyebrow" style="margin-bottom:10px">Size</legend><div class="sizes" id="sizes">${p.sizes.map(s => `<label><input type="radio" name="size" value="${esc(s)}"><span>${esc(s)}</span></label>`).join('')}</div></fieldset>` : ''}
       <div class="buy"><div class="qty" role="group" aria-label="Quantity"><button id="qm" aria-label="Decrease quantity">\u2212</button><output id="qv" aria-live="polite">1</output><button id="qp" aria-label="Increase quantity">+</button></div>
-        <button class="btn solid" id="add" style="flex:1;min-width:200px" ${buyable ? '' : 'disabled'}>${buyable ? 'Add to bag' : 'Unavailable'}</button></div>
+        <button class="btn solid" id="add" style="flex:1;min-width:200px" ${buyable ? '' : 'disabled'}>${buyable ? 'Add to bag' : (b.coming_soon || p.availability === 'dropping_soon' ? 'Dropping soon' : 'Sold out')}</button></div>
       <p class="err" id="perr" hidden></p>
       <div class="pmeta">${p.category ? `<span>Category \u00b7 ${esc(p.category)}</span>` : ''}<span>Brand \u00b7 ${esc(b.name)}</span></div></div></div><div id="more"></div></div>`;
   mountGallery($('#gal'), p.images.length ? p.images : [{ url: b.banner_url }], p.name);
