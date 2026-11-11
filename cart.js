@@ -1,39 +1,199 @@
-import { renderChrome, esc, asset, money, $, Cart, Store, MODE, showError } from './site.js';
-const app = $('#app'); let v;
-const waLink = (num, lines, total, orderNo, c) => {
-  const t = [orderNo ? `Hi! I just placed order ${orderNo} on the website:` : 'Hi! I\u2019d like to place an order:', ''];
-  lines.forEach(l => t.push(`- ${l.p.name}${l.size ? ' (' + l.size + ')' : ''}  x${l.qty}  -  ${money(l.total)}`));
-  t.push('', `TOTAL: ${money(total)}`, '', `Name: ${c.name}`, `Phone: ${c.phone}`, `Delivery address: ${c.address}`); if (c.notes) t.push(`Notes: ${c.notes}`);
-  return `https://wa.me/${num}?text=${encodeURIComponent(t.join('\n'))}`;
-};
-function draw() {
-  const lines = Cart.lines(v), bad = lines.some(l => !l.ok), good = lines.filter(l => l.ok), sub = good.reduce((n, l) => n + l.total, 0);
-  if (!lines.length) { app.innerHTML = `<div class="wrap"><div class="phead"><h1 class="h-xl">Your bag</h1></div><div class="state"><h2 class="h-lg">Your bag is empty.</h2><p style="margin-bottom:26px">Find something you love.</p><a class="btn solid" href="her-district.html">Shop Her District</a></div></div>`; return; }
-  const online = MODE !== 'static';
-  app.innerHTML = `<div class="wrap"><div class="phead"><p class="crumbs"><a href="index.html">Home</a> / Bag</p><h1 class="h-xl">Your bag</h1></div>
-   <div class="cart"><div id="lines">${lines.map(l => `<div class="line"><a href="product.html?p=${encodeURIComponent(l.p.slug)}"><img src="${esc(asset(l.p.images[0] && l.p.images[0].url))}" alt="${esc(l.p.name)}"></a>
-      <div><h3>${esc(l.p.name)}</h3><small>${l.size ? 'Size ' + esc(l.size) + ' \u00b7 ' : ''}${money(l.p.price)} each</small>${l.ok ? '' : '<p class="warn">No longer available \u2014 please remove it.</p>'}
-        <div style="display:flex;align-items:center"><div class="qty" role="group" aria-label="Quantity for ${esc(l.p.name)}"><button data-a="m" data-i="${l.idx}" aria-label="Decrease quantity">\u2212</button><output>${l.qty}</output><button data-a="p" data-i="${l.idx}" aria-label="Increase quantity">+</button></div><button class="rm" data-a="r" data-i="${l.idx}">Remove</button></div></div>
-      <div class="lt">${money(l.total)}</div></div>`).join('')}</div>
-    <aside class="sum"><h2>Order summary</h2><div class="row"><span>Subtotal</span><span id="st">${money(sub)}</span></div><div class="row tot"><span>Total</span><span>${money(sub)}</span></div>
-      <p class="note">${online ? 'No online payment is taken on the site yet. We confirm your order, payment and delivery with you on WhatsApp.' : 'Online order records are not switched on yet \u2014 your order is sent to us on WhatsApp.'} Prices are in Ghana cedis (GHS).</p>
-      <form id="co" novalidate><label class="fld"><span>Full name</span><input name="name" autocomplete="name" required></label><label class="fld"><span>Phone number</span><input name="phone" type="tel" autocomplete="tel" placeholder="e.g. 024 123 4567" required></label>
-        <label class="fld"><span>Email (optional)</span><input name="email" type="email" autocomplete="email"></label><label class="fld"><span>Delivery address</span><input name="address" autocomplete="street-address" placeholder="e.g. East Legon, Accra" required></label>
-        <label class="fld"><span>Notes (optional)</span><textarea name="notes" rows="2"></textarea></label><p class="err" id="cerr" hidden></p>
-        <button class="btn solid" style="width:100%" id="place" ${bad ? 'disabled' : ''}>${online ? 'Place order' : 'Order on WhatsApp'}</button></form></aside></div></div>`;
-  $('#lines').onclick = (e) => { const b = e.target.closest('button[data-a]'); if (!b) return; const i = +b.dataset.i, it = Cart.items()[i]; if (!it) return; if (b.dataset.a === 'r') Cart.remove(i); else Cart.setQty(i, it.qty + (b.dataset.a === 'p' ? 1 : -1)); draw(); };
-  $('#co').onsubmit = async (e) => {
-    e.preventDefault(); const f = new FormData(e.target), c = Object.fromEntries(['name', 'phone', 'email', 'address', 'notes'].map(k => [k, String(f.get(k) || '').trim()]));
-    const err = $('#cerr'), btn = $('#place'); err.hidden = true;
-    const fail = (m) => { err.textContent = m; err.hidden = false; btn.disabled = false; };
-    if (c.name.length < 2) return fail('Please enter your full name.'); if (!/^[0-9+() \-]{7,20}$/.test(c.phone)) return fail('Please enter a valid phone number.'); if (c.address.length < 4) return fail('Please enter your delivery address.');
-    const num = (v.settings.whatsapp_number || '233244126931').replace(/\D/g, ''); btn.disabled = true;
-    try {
-      if (!online) { open(waLink(num, good, sub, null, c), '_blank', 'noopener'); btn.disabled = false; return; }
-      const r = await Store.placeOrder(c, good.map(l => ({ product_id: l.p.id, quantity: l.qty, size: l.size || '' })));
-      const link = waLink(num, good, r.total, r.order_number, c); Cart.clear();
-      app.innerHTML = `<div class="wrap"><div class="done"><span class="eyebrow">Order received</span><h1 class="h-xl" style="margin:12px 0 18px">Thank you.</h1><p style="margin-bottom:8px">Your order number is <strong>${esc(r.order_number)}</strong> \u2014 total <strong>${money(r.total)}</strong>.</p><p style="opacity:.75;margin-bottom:28px">Payment has not been taken. Send us your order on WhatsApp so we can confirm payment and delivery with you.</p><p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn solid" href="${esc(link)}" target="_blank" rel="noopener">Confirm on WhatsApp</a><a class="btn" href="her-district.html">Continue shopping</a></p></div></div>`; scrollTo(0, 0);
-    } catch (ex) { fail(ex.message || 'We could not place your order. Please try again.'); }
-  };
+/* ===========================================================
+   LFG CART — add to bag + bag/checkout page logic
+   Checkout sends the order straight to WhatsApp (+233 24 412 6931)
+   No payment gateway — WhatsApp is used to confirm the order.
+=========================================================== */
+
+var LFG_WHATSAPP_NUMBER = "233244126931"; // +233 24 412 6931, international format, no +/spaces
+
+function lfgAddToCart(name, price, btn) {
+  var img = btn.closest('.prod-card').querySelector('img').src;
+  var cart = JSON.parse(localStorage.getItem("lfg-cart") || "[]");
+  var existingIndex = -1;
+  for (var i = 0; i < cart.length; i++) {
+    if (cart[i].name === name) { existingIndex = i; break; }
+  }
+  if (existingIndex > -1) {
+    cart[existingIndex].qty += 1;
+  } else {
+    cart.push({ name: name, price: price, qty: 1, image: img });
+  }
+  localStorage.setItem("lfg-cart", JSON.stringify(cart));
+  updateCartCount();
+  showAddedToast();
+  renderCart(); // no-op if not on the bag page
 }
-(async () => { try { v = await renderChrome('cart'); } catch { return showError(app, 'We could not load your bag right now. Please refresh in a moment.'); } draw(); addEventListener('storage', draw); })();
+
+function updateCartCount() {
+  var cart = JSON.parse(localStorage.getItem("lfg-cart") || "[]");
+  var total = 0;
+  for (var i = 0; i < cart.length; i++) { total += cart[i].qty; }
+  var el = document.getElementById("cart-count");
+  if (el) el.textContent = total;
+}
+
+function showAddedToast() {
+  var toast = document.getElementById("added-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "added-toast";
+    toast.textContent = "ADDED TO BAG ✓";
+    toast.style.cssText = "position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#f5c518;color:#0a0a0a;padding:11px 22px;font-size:11px;font-weight:700;letter-spacing:2px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;";
+    document.body.appendChild(toast);
+  }
+  toast.style.opacity = "1";
+  setTimeout(function() { toast.style.opacity = "0"; }, 2000);
+}
+
+/* ---------- helpers ---------- */
+
+function lfgGetCart() {
+  return JSON.parse(localStorage.getItem("lfg-cart") || "[]");
+}
+
+function lfgSaveCart(cart) {
+  localStorage.setItem("lfg-cart", JSON.stringify(cart));
+}
+
+function lfgMoney(n) {
+  return "GH₵ " + n.toFixed(2).replace(/\.00$/, "");
+}
+
+function lfgCartTotal(cart) {
+  var total = 0;
+  for (var i = 0; i < cart.length; i++) total += cart[i].price * cart[i].qty;
+  return total;
+}
+
+/* ---------- bag / checkout page ---------- */
+
+function lfgChangeQty(index, delta) {
+  var cart = lfgGetCart();
+  if (!cart[index]) return;
+  cart[index].qty += delta;
+  if (cart[index].qty < 1) {
+    cart.splice(index, 1);
+  }
+  lfgSaveCart(cart);
+  updateCartCount();
+  renderCart();
+}
+
+function lfgRemoveItem(index) {
+  var cart = lfgGetCart();
+  cart.splice(index, 1);
+  lfgSaveCart(cart);
+  updateCartCount();
+  renderCart();
+}
+
+function renderCart() {
+  var itemsEl = document.getElementById("cart-items");
+  if (!itemsEl) return; // not on the bag page, nothing to do
+
+  var cart = lfgGetCart();
+  var emptyEl = document.getElementById("cart-empty");
+  var summaryEl = document.getElementById("cart-summary");
+  var checkoutBtn = document.getElementById("checkoutBtn");
+
+  itemsEl.innerHTML = "";
+
+  if (cart.length === 0) {
+    if (emptyEl) emptyEl.style.display = "block";
+    if (summaryEl) summaryEl.style.display = "none";
+    if (checkoutBtn) checkoutBtn.disabled = true;
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = "none";
+  if (summaryEl) summaryEl.style.display = "block";
+  if (checkoutBtn) checkoutBtn.disabled = false;
+
+  cart.forEach(function(item, index) {
+    var row = document.createElement("div");
+    row.className = "cart-row";
+    row.innerHTML =
+      '<div class="cart-row-img"><img src="' + item.image + '" alt="' + item.name + '"/></div>' +
+      '<div class="cart-row-info">' +
+        '<p class="cart-row-name">' + item.name + '</p>' +
+        '<p class="cart-row-price">' + lfgMoney(item.price) + ' each</p>' +
+        '<div class="cart-qty">' +
+          '<button type="button" class="qty-btn" onclick="lfgChangeQty(' + index + ',-1)">\u2212</button>' +
+          '<span class="qty-val">' + item.qty + '</span>' +
+          '<button type="button" class="qty-btn" onclick="lfgChangeQty(' + index + ',1)">+</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cart-row-right">' +
+        '<p class="cart-row-total">' + lfgMoney(item.price * item.qty) + '</p>' +
+        '<button type="button" class="cart-remove" onclick="lfgRemoveItem(' + index + ')">Remove</button>' +
+      '</div>';
+    itemsEl.appendChild(row);
+  });
+
+  var total = lfgCartTotal(cart);
+  var totalEl = document.getElementById("cart-total");
+  if (totalEl) totalEl.textContent = lfgMoney(total);
+}
+
+function lfgBuildOrderMessage(cart, details) {
+  var lines = [];
+  lines.push("Hi LFG! I'd like to place an order:");
+  lines.push("");
+  cart.forEach(function(item) {
+    lines.push("- " + item.name + "  x" + item.qty + "  -  " + lfgMoney(item.price * item.qty));
+  });
+  lines.push("");
+  lines.push("TOTAL: " + lfgMoney(lfgCartTotal(cart)));
+  lines.push("");
+  lines.push("Name: " + details.name);
+  lines.push("Phone: " + details.phone);
+  lines.push("Delivery Address: " + details.address);
+  if (details.notes) {
+    lines.push("Notes: " + details.notes);
+  }
+  return lines.join("\n");
+}
+
+function lfgCheckoutViaWhatsApp() {
+  var cart = lfgGetCart();
+  if (cart.length === 0) {
+    alert("Your bag is empty.");
+    return;
+  }
+
+  var nameEl = document.getElementById("checkout-name");
+  var phoneEl = document.getElementById("checkout-phone");
+  var addressEl = document.getElementById("checkout-address");
+  var notesEl = document.getElementById("checkout-notes");
+
+  var details = {
+    name: nameEl ? nameEl.value.trim() : "",
+    phone: phoneEl ? phoneEl.value.trim() : "",
+    address: addressEl ? addressEl.value.trim() : "",
+    notes: notesEl ? notesEl.value.trim() : ""
+  };
+
+  if (!details.name || !details.phone || !details.address) {
+    alert("Please fill in your name, phone number, and delivery address so we can confirm your order.");
+    return;
+  }
+
+  var message = lfgBuildOrderMessage(cart, details);
+  var url = "https://wa.me/" + LFG_WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
+
+  // Open WhatsApp in a new tab, then clear the bag since the order
+  // has been sent through for confirmation.
+  window.open(url, "_blank");
+  localStorage.removeItem("lfg-cart");
+  updateCartCount();
+  renderCart();
+}
+
+/* ---------- init ---------- */
+
+updateCartCount();
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateCartCount();
+  renderCart();
+});
