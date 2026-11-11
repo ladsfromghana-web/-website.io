@@ -79,8 +79,26 @@ try:
         # ---- mobile
         m = b.new_context(viewport=dict(width=390, height=844), has_touch=True, is_mobile=True); mp = m.new_page(); mp.on("pageerror", lambda e: errs.append("M:" + str(e)[:200]))
         mp.goto(B + "index.html"); mp.wait_for_timeout(1400); mp.screenshot(path=f"{OUT}/t_m_home.png")
-        mp.locator("#burger").tap(); mp.wait_for_timeout(700); check("mobile menu opens", mp.locator("#hdr.open").count() == 1); mp.screenshot(path=f"{OUT}/t_m_menu.png")
+        mp.locator("#burger").tap(); mp.wait_for_timeout(800); check("mobile menu opens as a right-hand drawer", mp.locator("#drawer.open").count() == 1)
+        bb = mp.locator("#drawer").bounding_box(); check("drawer is flush with the RIGHT edge of the screen", abs(bb["x"] + bb["width"] - 390) < 2 and bb["x"] > 40, bb)
+        mp.screenshot(path=f"{OUT}/t_m_menu.png"); mp.keyboard.press("Escape"); mp.wait_for_timeout(600); check("Escape closes the drawer", mp.locator("#drawer.open").count() == 0)
+        mp.locator("#burger").tap(); mp.wait_for_timeout(600); mp.mouse.click(30, 400); mp.wait_for_timeout(600); check("tapping the dimmed overlay closes the drawer", mp.locator("#drawer.open").count() == 0)
+        mp.locator("#burger").tap(); mp.wait_for_timeout(600); mp.locator('.drawer-links a:has-text("Her District")').tap(); mp.wait_for_url("**/her-district.html"); check("drawer link navigates", True); mp.goto(B + "index.html"); mp.wait_for_timeout(1200)
+        pill = mp.locator("#hdr"); pb = pill.bounding_box(); check("nav is a floating glass pill (rounded, blurred)", pill.evaluate("e=>getComputedStyle(e).borderRadius") != "0px" and "blur" in pill.evaluate("e=>getComputedStyle(e).backdropFilter||getComputedStyle(e).webkitBackdropFilter") and pb["x"] > 5, pb)
         sw = mp.evaluate("document.documentElement.scrollWidth"); check("no horizontal overflow on mobile home", sw <= 392, sw)
+        m2 = b.new_context(viewport=dict(width=370, height=592), has_touch=True, is_mobile=True); sp = m2.new_page(); sp.goto(B + "index.html"); sp.wait_for_timeout(1400); sp.locator("#collections").scroll_into_view_if_needed(); sp.wait_for_timeout(1200)
+        for k in ("lfg", "her-district"):
+            c = sp.locator(f'.bcard[data-brand="{k}"]'); c.scroll_into_view_if_needed(); sp.wait_for_timeout(900); g = c.locator(".go"); cb = c.bounding_box(); gb = g.bounding_box(); full = g.inner_text().strip().lower()
+            check(f"370px: '{k}' call-to-action fully inside the card, not cut off ({full})", gb["x"] >= cb["x"] and gb["x"] + gb["width"] <= cb["x"] + cb["width"] + 1 and g.evaluate("e=>e.scrollWidth<=e.clientWidth+1"), (cb, gb))
+            nm = c.locator("h3").inner_text().strip(); check(f"370px: brand name '{nm}' visible", nm in ("Lads From Ghana", "Her District") and c.locator("h3").is_visible())
+            ib = c.locator(".bcard-imgs").bounding_box(); check(f"370px: '{k}' preview has no big empty block (height <= 1.5 x width)", ib["height"] <= ib["width"] * 1.5, ib)
+        sp.screenshot(path=f"{OUT}/t_m370.png"); m2.close()
+        # every image on every page must actually load (scroll to trigger lazy loading)
+        for u in ("index.html", "lads-from-ghana.html", "her-district.html", "product.html?p=her-district-sleeveless-top", "product.html?p=her-district-crop-top", "lookbook.html", "cart.html"):
+            mp.goto(B + u); mp.wait_for_timeout(900)
+            for y in range(0, mp.evaluate("document.body.scrollHeight"), 500): mp.evaluate(f"scrollTo(0,{y})"); mp.wait_for_timeout(120)
+            mp.wait_for_timeout(600); broken = mp.evaluate("Array.from(document.images).filter(i=>i.getAttribute('src')&&i.complete&&i.naturalWidth===0).map(i=>i.src)"); pend = mp.evaluate("Array.from(document.images).filter(i=>!i.complete).length")
+            check(f"all images load on {u}", not broken and pend == 0, (broken, pend))
         for u in ("her-district.html", "product.html?p=her-district-crop-top", "lookbook.html", "cart.html", "lads-from-ghana.html"):
             mp.goto(B + u); mp.wait_for_timeout(900); w = mp.evaluate("document.documentElement.scrollWidth"); check(f"no horizontal overflow: {u}", w <= 392, w)
         m.close(); b.close()

@@ -24,7 +24,7 @@ create table if not exists products (
   name text not null check (length(trim(name)) > 0), slug text unique not null,
   price numeric(10,2) not null check (price >= 0),            -- Ghana cedis (GHS)
   description text not null default '', category text not null default '',
-  availability text not null default 'available' check (availability in ('available','sold_out')),
+  availability text not null default 'available' check (availability in ('available','dropping_soon','sold_out')),
   published boolean not null default false, featured boolean not null default false,
   stock integer check (stock is null or stock >= 0),            -- null = not tracked
   sizes jsonb not null default '[]'::jsonb,                     -- e.g. ["S","M","L"]; empty = no size choice
